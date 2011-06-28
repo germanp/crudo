@@ -1,0 +1,29 @@
+
+* LinuxCrudo 0.5
+
+** TODO CD de arranque
+
+*** TODO Sistema de arranque
+
+**** DONE Construir un sistema de Makefile para construir el cd automáticamente (basado en lfs-livecd).
+
+**** TODO Hacer una limpieza de los programas innecesarios.
+     
+**** TODO Establecer la estructura de directorios que va a tener el cd.
+     
+**** TODO Hacer que se pueda arrancar de pendrives.
+**** TODO Cambiar el fondo en el arranque de syslinux.
+*** TODO Programa de instalación
+**** TODO Preparar un entorno de pruebas con los programas de cd de arranque.
+**** TODO Rediseñar la interfaz si es necesario, tal vez un una ayuda en línea.
+**** TODO Verificar si es posible la internacionalización con bash.
+**** TODO Programar el sistema de instalación.
+** TODO Paquetes
+*** TODO Rediseñar el empaquetador para que soporte crear paquetes precompilados a partir de paquetes fuente.
+*** TODO Rediseñar el empaquetador para que soporte agregar dependencias.
+*** TODO Rediseñar la base de datos sqlite.
+*** TODO Estandarizar el archivo de texto que transfiere los datos del paquete.
+*** TODO Recodificar "crudo" y añadir el soporte de dependencias de paquetes.
+** TODO Web
+*** TODO Utilizar un wiki basado en un sistema de control de versiones.
+*** TODO Buscar una forma de exponer la planificación en la web (este mismo archivo al menos).
