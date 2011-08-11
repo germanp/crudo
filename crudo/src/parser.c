@@ -4,13 +4,6 @@
 
 int parse(const char* file){
   FILE *fp = fopen(file, "r");
-  char buffer[2000]; // Voy a copiar todo acá y después la voy a parsear
-  int car=getc(fp), i=0, flag=0;
-  while( car != EOF ) {
-    if ( isspace(car) ){ // Cambiar por un tipo de espacio 
-      
-    }
-  }
   return 0;
 }
 
@@ -23,5 +16,12 @@ int parse(const char* file){
  */
 
 char* strip_spaces(FILE* f){
-  
+  /* char* buffer; // Voy a copiar todo acá y después la voy a parsear */
+  /* int car=getc(f), i=0, flag=0; */
+  /* while( car != EOF ) { */
+  /*   if ( isspace(car) ){ // Cambiar por un tipo de espacio  */
+      
+  /*   } */
+  /* } */
+  return 0;
 }

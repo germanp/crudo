@@ -78,10 +78,12 @@
 		char info[80]; \
 		double epsilon; \
 		int continueTests = 1; \
-		SET_EPSILON_DEFAULT(); \
-		sprintf(info, " ");
-
+		SET_EPSILON_DEFAULT() \
+		sprintf(info, " "); \
+		do \
+		
 #define END_TESTS() \
+		while(0); \
 		name = name; \
 		reason = reason; \
 		info[0] = info[0]; \
@@ -160,11 +162,13 @@
 	printf("> %s...\n", x); \
 	if (1) { \
 		tests++; \
-		name = x;
+		name = x; \
+		do \
 
 // End a test
 // Close the brace we opened up (and also reset the epsilon)
 #define END_TEST() \
+		while(0); \
 		SET_EPSILON_DEFAULT(); \
 	}
 
