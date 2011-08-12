@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 int parse(const char* file){
   FILE *fp = fopen(file, "r");
@@ -16,12 +17,21 @@ int parse(const char* file){
  */
 
 char* strip_spaces(FILE* f){
-  /* char* buffer; // Voy a copiar todo acá y después la voy a parsear */
-  /* int car=getc(f), i=0, flag=0; */
-  /* while( car != EOF ) { */
-  /*   if ( isspace(car) ){ // Cambiar por un tipo de espacio  */
-      
-  /*   } */
-  /* } */
-  return 0;
+  char* buffer=(char*)malloc(sizeof(char)*1024); // Voy a copiar todo acá y después la voy a parsear
+  int letter, i=0, last_letter=0;
+  while( (letter=fgetc(f)) != EOF ) {
+    if (isspace(letter)) {
+      if ( letter == last_letter ){
+	last_letter=letter;
+	continue;
+      }
+    }
+    last_letter=letter;
+    buffer[i]=letter;
+    i++;
+    // Super dynamic allocation.
+    if (!(i%1024)) buffer=(char*)realloc(buffer,(i+1024)*sizeof(char));
+  }
+  buffer[i]='\0';
+  return buffer;
 }

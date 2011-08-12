@@ -3,11 +3,12 @@ Makefile
 Makefile.in
 aclocal.m4 
 compile 
-config.h.in
-config.h
-configure
-configure.scan 
+config*
 depcomp 
 install-sh 
 missing 
 *~
+*.o
+*.a
+tmp.*
+.deps
