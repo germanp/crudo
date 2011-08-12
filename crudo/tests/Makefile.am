@@ -7,3 +7,6 @@ TESTS = suite
 check_PROGRAMS = suite
 suite_SOURCES = suite.c check_parser.c
 #check_parser_CFLAGS = -I $(top_srcdir)/src
+
+cu/libcu.a:
+	make -C cu/

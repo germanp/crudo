@@ -1,10 +1,10 @@
 #include "cu/cu.h"
 
 // Declarations of tests
-TEST(test1);
+TEST(check_strip_spaces);
 
 // Collect tests into test suite
-TEST_SUITE(T1) {
-    TEST_ADD(test1),
+TEST_SUITE(suite) {
+    TEST_ADD(check_strip_spaces),
     TEST_SUITE_CLOSURE
 };
