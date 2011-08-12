@@ -1,14 +1,16 @@
 
 Makefile
 Makefile.in
-aclocal.m4 
-compile 
 config*
-depcomp 
-install-sh 
-missing 
 *~
 *.o
 *.a
 tmp.*
 .deps
+depcomp
+compile
+aclocal.m4
+autom4te.cache/
+install-sh
+missing
+stamp-h1
