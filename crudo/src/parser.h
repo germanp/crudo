@@ -2,8 +2,9 @@
 #define _PARSER_H_
 
 #include <stdio.h>
+#include "package.h"
 
-int parse(const char* );
+struct Package* parse(const char* );
 
 char* strip_spaces(FILE* );
 

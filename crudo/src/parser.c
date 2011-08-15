@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <regex.h>
 
-int parse(const char* file){
+struct Package* parse(const char* file){
   FILE *fp = fopen(file, "r");
-  return 0;
+  return (struct Package*)NULL;
 }
 
 /** 
@@ -35,3 +36,4 @@ char* strip_spaces(FILE* f){
   buffer[i]='\0';
   return buffer;
 }
+
