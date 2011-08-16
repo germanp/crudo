@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "package.h"
 
-struct Package* parse(const char* );
+Package* parse(const char* );
 
 char* strip_spaces(FILE* );
 

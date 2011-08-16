@@ -1,5 +1,6 @@
 /* #include "logparser.h" */
 #include "package.h"
+#include "parser.h"
 /* #include "base.h" */
 /* #include <sqlite3.h> */
 #include "config.h"
@@ -41,9 +42,10 @@ int main(int argc, char** argv){
       imprime_uso();
       return 0;
     case 'a':
-      ; // GCC problem???
+      ;
+ // GCC problem???
       // optarg ==> file path.
-      struct Package* p = parse((const char*)optarg);
+      Package* p = parse(optarg);
       /* paq=IniciarPaquete(); */
       /* if ( procesarlog(optarg,&paq) == 0 ){ */
       /* 	if ( sqlite3_open(txt_base,&base) == SQLITE_OK ){ */

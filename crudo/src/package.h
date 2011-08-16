@@ -1,11 +1,11 @@
 #ifndef PACKAGE_H
 #define PACKAGE_H
 
-struct Relation {
-  char* paquete;
-  char comparador[3];
+typedef struct {
+  char* name;
+  char comparator[3];
   unsigned long int version;
-};
+} Relation;
 
 typedef struct{
   char* name;

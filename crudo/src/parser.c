@@ -1,12 +1,26 @@
 #include "parser.h"
+#include "package.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <regex.h>
 
-struct Package* parse(const char* file){
+Package* parse(const char* file){
   FILE *fp = fopen(file, "r");
-  return (struct Package*)NULL;
+  char* buffer = strip_spaces(fp);
+  Package* p=(Package*)malloc(sizeof(Package));
+  regex_t filter;
+  regmatch_t* match_array=(regmatch_t*)malloc(sizeof(regmatch_t)*2);
+
+  if(regcomp(&filter, "\([A-Za-z]*\)", 0) != 0)
+    perror("Critical error."); // Revisar
+  if ( regexec(&filter,buffer,1,match_array,0) == 0 ) {
+    printf("%d\n",match_array[0].rm_eo);
+  }
+  regfree(&filter);
+  fclose(fp);
+  return p;
 }
 
 /** 
