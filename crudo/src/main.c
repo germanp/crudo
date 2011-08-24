@@ -26,7 +26,7 @@ int main(int argc, char** argv){
   //static Paquete paq;
   int opcion;
   struct stat buf;
-  const char* txt_base="/var/lib/crudo/base.cdb"; // Path por defecto a la base de datos
+  //  const char* txt_base="/var/lib/crudo/base.cdb"; // Path por defecto a la base de datos
   //const char* txt_base="crudo.cdb";
   const struct option opc_largas[] = {
     { "help",no_argument,NULL,'h' },
@@ -44,7 +44,7 @@ int main(int argc, char** argv){
     case 'a':
       ;
  // GCC problem???
-      // optarg ==> file path.
+      // optarg b==> file path.
       Package* p = parse(optarg);
       /* paq=IniciarPaquete(); */
       /* if ( procesarlog(optarg,&paq) == 0 ){ */

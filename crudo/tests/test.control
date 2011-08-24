@@ -1,14 +1,13 @@
 Package: xserver-xorg-input-vmmouse
 
 
-
 Priority: optional
 
 Section: x11     
     Installed-Size: 176
 Maintainer: Ubuntu                 X-SWAT <ubuntu-x@lists.ubuntu.com>
 Architecture: amd64    		
-Version: 1:12.6.5-4ubuntu2
+Version: 1:12.6.5-2
 Replaces: mdetect (<< 0.5.2.2), xserver-xorg (<< 6.8.2-35)
 Provides: xserver-xorg-input-7
 Depends: libc6 (>= 2.7), xserver-xorg-core (>= 2:1.6.99.900), xserver-xorg-input-mouse, udev

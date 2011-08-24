@@ -1,21 +1,26 @@
 #ifndef PACKAGE_H
 #define PACKAGE_H
 
-typedef struct {
+struct Relation{
   char* name;
   char comparator[3];
   unsigned long int version;
-} Relation;
+};
 
-typedef struct{
+typedef struct Relation Relation;
+
+struct Package{
   char* name;
   char* description;
+  char* web;
   unsigned long int version;
   //char* command;
   char* section;
-  struct Relacion* depends;
-  struct Relacion* conflicts;
-  struct Relacion* optionals;
-} Package;
+  struct Relation* depends;
+  struct Relation* conflicts;
+  struct Relation* optionals;
+};
+
+typedef struct Package Package;
 
 #endif // PACKAGE_H
