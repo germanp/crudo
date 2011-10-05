@@ -42,10 +42,9 @@ int main(int argc, char** argv){
       imprime_uso();
       return 0;
     case 'a':
-      ;
- // GCC problem???
-      // optarg b==> file path.
-      Package* p = parse(optarg);
+      ;  // <-- GCC problem???
+      crudo_err err;
+      Package* p=parse(optarg,&err);
       /* paq=IniciarPaquete(); */
       /* if ( procesarlog(optarg,&paq) == 0 ){ */
       /* 	if ( sqlite3_open(txt_base,&base) == SQLITE_OK ){ */

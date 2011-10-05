@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 AM_CPPFLAGS = -I$(top_srcdir)/src
-LDADD = cu/libcu.a $(top_srcdir)/src/parser.o
+LDADD = cu/libcu.a $(top_srcdir)/src/parser.o $(top_srcdir)/src/package.o
 
 TESTS = suite
 check_PROGRAMS = suite

@@ -10,7 +10,7 @@ Architecture: amd64
 Version: 1:12.6.5-2
 Replaces: mdetect (<< 0.5.2.2), xserver-xorg (<< 6.8.2-35)
 Provides: xserver-xorg-input-7
-Depends: libc6 (>= 2.7), xserver-xorg-core (>= 2:1.6.99.900), xserver-xorg-input-mouse, udev
+Depends: libc6 (>= 2.7.0) , xserver-xorg-core (>= 2:1.6.99)
 Size:   	 30918
 Description: X.Org X server -- VMMouse input driver to use with VMWare
  This package provides the driver for the X11 vmmouse input device.
