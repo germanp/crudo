@@ -59,10 +59,10 @@ Package* parse(const char* file, crudo_err* err){
 	extract_string(val,last_work,val_base,val_len);
 
 	if ( ! fill_package(p,field,val,err) ){
-	  err->field=strdup(field);
+	  if ( err )
+	    err->field=strdup(field);
 	  free_package(&p);
 	  goto cleanup;
-	  //printf ("Failed on field: %s, val: %s\n",field,val);
 	}
 	extract_regmatch(field,work,match_a[1],200);
 	val_len=match_a[2].rm_eo - match_a[2].rm_so;
@@ -74,7 +74,8 @@ Package* parse(const char* file, crudo_err* err){
       if ( val_len > 1000 ) val_len=1000;
       extract_string(val,last_work,val_base,val_len);
       if ( ! fill_package(p,field,val,err)  ) {
-	err->field=strdup(field);
+	if ( err )
+	  err->field=strdup(field);
 	free_package(&p);
       }
     }
@@ -120,37 +121,43 @@ int fill_package(Package* p, char* field, char* val, crudo_err* err){
     if ( (bad_char=strcspn(val," \n\t()[].,:;<>")) == val_len ){
       p->name=strdup(val);
     } else {
-      if ( err )
+      if ( err ){
 	err->code=CRUDO_PARSE_ERROR;
+	goto on_error;
+      }
     }
-  }else if (!strcasecmp(val,"Description")){
+  } else if (!strcasecmp(val,"Description")){
     p->description=strdup(val);
-  }else if (!strcasecmp(val,"Homepage")){
+  } else if (!strcasecmp(val,"Homepage")){
     p->web=strdup(val);
-  }else if (!strcasecmp(field,"Section")) {
+  } else if (!strcasecmp(field,"Section")) {
     if ( (bad_char=strcspn(val," \n\t()[].,:<>")) == val_len ){
       p->section=strdup(val);
     } else {
-      /* fprintf(stderr, */
-      /* 	      "%s: Error when parsing '%s', character '%c' is not permitted.\n", */
-      /* 	      PACKAGE_NAME,val,val[bad_char]); */
-      if ( err )
+      if ( err ) {
 	err->code=CRUDO_PARSE_ERROR;
+	goto on_error;
+      }
     }
-  }else if (!strcasecmp(field,"Version")) {
+  } else if (!strcasecmp(field,"Version")) {
     p->version=parse_version(val,err);
     if ( !p->version ) {
-      return 0;
+      err->str_err=strdup(val);
+      goto on_error;
     }
-  }else if (!strcasecmp(field,"Depends")) {
+  } else if (!strcasecmp(field,"Depends")) {
     return parse_relation(&p->depends,val,err);
-  }//else if (!strcasecmp(field,"Conflicts")) {
-  /*   p->conflicts=parse_relation(val); */
-  /* }else if (!strcasecmp(field,"Suggests")) { */
-  /*   p->optionals=parse_relation(val); */
-  /* }else if (!strcasecmp(field,"Recommends")) { */
+  }else if (!strcasecmp(field,"Conflicts")) {
+    return parse_relation(&p->conflicts,val,err);
+  }else if (!strcasecmp(field,"Suggests")) {
+    return parse_relation(&p->optionals,val,err);
+  }/*else if (!strcasecmp(field,"Recommends")) { */
   /*   p->optionals=parse_relation(val); */
   //}
+  return 1;
+ on_error:
+  err->str_err=strdup(val);
+  return 0;
 }
 /** 
  * Strip all the repeated spaces (tabs, returns, etc)
@@ -254,12 +261,12 @@ void extract_regmatch(char matched[], const char* str, regmatch_t m, unsigned in
 
 /** 
  * Processes a string and returns the appropriate unsigned long int.
- * Precondition: err must be CRUDO_OK at first.
  *
  * @param ver An String containing the version info.  For example:
  * 2.10.1-8, but also accepts debian style but without characters.
  *
- * @param err An input variable to set an error code.
+ * @param err An input variable to set an error code. (only  sets err->code
+ * on error)
  *
  * @return Returns a long integer where each digit shows the version
  *         that corresponds to the groups separated by . and -
@@ -304,7 +311,8 @@ long unsigned int parse_version(const char* ver, crudo_err* err){
  * 
  * @param first_rel A pointer where will be the Relation struct (R/W)
  * @param txt_rel String with the corresponding control format.
- * @param err Error struct to be filled in case of error.
+ * @param err Error struct to be filled in case of error. (Sets
+ * crudo->str_err and crudo->code on error)
  * 
  * @return 
  */

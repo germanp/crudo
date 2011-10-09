@@ -12,17 +12,15 @@ TEST(check_parse_relation){
   parse_relation(&r," gcc++ (>= 3.2.1), \n libncurses (>=2.9.5)",&err);
   assertTrue(r);
   if ( r ) {
-    //printf ("%s\n",r->name);
-    //assertFalse( strcmp(r->name,"gcc++") );
-    /* assertFalse( strcmp(r->comparator,">=") ); */
-    /* assertEquals( r->version, 3020100); */
-    /* r=r->next; */
-    /* assertFalse( strcmp(r->name,"libncurses") ); */
-    /* assertFalse( strcmp(r->comparator,">=") ); */
-    /* assertEquals( r->version, 2090500 ); */
+    assertFalse( strcmp(r->name,"gcc++") );
+    assertFalse( strcmp(r->comparator,">=") );
+    assertEquals( r->version, 3020100);
+    r=r->next;
+    assertFalse( strcmp(r->name,"libncurses") );
+    assertFalse( strcmp(r->comparator,">=") );
+    assertEquals( r->version, 2090500 );
   }
 }
-
 
 TEST(check_parse_version){
   assertEquals(parse_version("1:2.34.1-7",0),2340107);
@@ -43,9 +41,9 @@ TEST(check_strip_spaces) {
 }
 
 TEST(check_parse_control) {
-  Package* p=parse("test.control",0);
-  assertTrueM(p,"Parsing control file failed.");
-
+  crudo_err err;
+  Package* p=parse("test.control",&err);
+ 
   if ( p ) {
     assertFalse( strcmp(p->name,"xserver-xorg-input-vmmouse") );
     assertFalse( strcmp(p->section,"x11") );
@@ -60,10 +58,15 @@ TEST(check_parse_control) {
       assertFalse( strcmp(p->depends->next->comparator,">=") );
       assertEquals( p->depends->next->version, 1069900 );
       assertFalse( p->depends->next->next );
+    } else {
+      assertTrueM(0,"Failed on parsing depends.");
     }
-    // //
-    
+    // Conflicts
+    assertFalse(p->conflicts);
+    assertFalse(p->optionals);
     free_package(&p);
     assertFalseM( p , "Failed on package free." );
-   }
+  } else {
+    assertTrueM(1,"Parsing 'test.control' failed and should not do it.");
+  }
 }
