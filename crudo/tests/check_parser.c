@@ -31,7 +31,7 @@ TEST(check_parse_version){
 }
 
 TEST(check_strip_spaces) {
-  FILE* fp = fopen("test.control", "r");
+  FILE* fp = fopen("test1.control", "r");
   char* buffer = strip_spaces(fp);
   assertEquals(strlen(buffer), 1228);
   //                             ^
@@ -40,15 +40,13 @@ TEST(check_strip_spaces) {
   free(buffer);
 }
 
-TEST(check_parse_control) {
-  crudo_err err;
-  Package* p=parse("test.control",&err);
- 
+TEST(check_parse_control_1) {
+  FILE *fp=fopen("test1.control","r");
+  Package* p=parse(fp,0);
   if ( p ) {
     assertFalse( strcmp(p->name,"xserver-xorg-input-vmmouse") );
     assertFalse( strcmp(p->section,"x11") );
     assertEquals( p->version, 12060502 );
-    assertTrueM( p->depends , "Parsing depends fail." );
     // Depends //
     if ( p->depends ) {
       assertFalse( strcmp(p->depends->name,"libc6") );
@@ -61,12 +59,90 @@ TEST(check_parse_control) {
     } else {
       assertTrueM(0,"Failed on parsing depends.");
     }
-    // Conflicts
+    // Conflicts //
     assertFalse(p->conflicts);
     assertFalse(p->optionals);
     free_package(&p);
     assertFalseM( p , "Failed on package free." );
   } else {
-    assertTrueM(1,"Parsing 'test.control' failed and should not do it.");
+    assertTrueM(1,"Parsing 'test1.control' failed and should not do it.");
+  }
+}
+
+TEST(check_parse_control_2) {
+  crudo_err err;
+  Relation* r;
+  FILE *fp=fopen("test2.control","r");
+  Package* p=parse(fp,&err);
+  if ( p ) {
+    assertFalse( strcmp(p->name,"python-tk") );
+    assertFalse( strcmp(p->section,"python") );
+    assertEquals( p->version, 2060500 );
+    // Depends //
+    r=p->depends;
+    if ( r ){
+      assertFalse( strcmp(r->name, "python") );
+      assertFalse( strcmp(r->comparator, "<<") );
+      assertEquals( r->version, 2070000 );
+      r=r->next;
+      if ( r ) {
+      	assertFalse(strcmp(r->name, "python"));
+      	assertFalse(strcmp(r->comparator, ">="));
+      	assertEquals(r->version,2060000);
+      	r=r->next;
+      	if ( r ) {
+      	  assertFalse(strcmp(r->name,"tk8.5"));
+      	  assertFalse(strcmp(r->comparator,">="));
+      	  assertEquals(r->version,8050000);
+      	} else {
+      	  assertFalseM(1,"Expected more dependencies.");
+      	    }
+      } else {
+      	assertFalseM(1,"Expected more dependencies.");
+      }
+    }
+    // End Depends //
+
+    // Conflicts //
+    r=p->conflicts;
+    if ( r ){
+      assertFalse( strcmp(r->name, "python2.3-tk") );
+      assertFalse( strcmp(r->comparator, "") );
+      assertEquals( r->version, 0 );
+      r=r->next;
+      if ( r ) {
+      	assertFalse(strcmp(r->name, "python2.4-tk"));
+      	assertFalse(strcmp(r->comparator, ""));
+      	assertEquals(r->version,0);
+      } else {
+      	assertFalseM(1,"Expected more conflicts.");
+      }
+    } else {
+      assertFalseM(1,"Expected more conflicts.");
+    }
+    // End Conflicts //
+    
+    // Optionals //
+    r=p->optionals;
+    if ( r ){
+      assertFalse( strcmp(r->name, "tix") );
+      assertFalse( strcmp(r->comparator, "") );
+      assertEquals( r->version, 0 );
+      r=r->next;
+      if ( r ) {
+      	assertFalse(strcmp(r->name, "python-tk-dbg"));
+      	assertFalse(strcmp(r->comparator, ""));
+      	assertEquals(r->version,0);
+      } else {
+      	assertFalseM(1,"Expected more conflicts.");
+      }
+    } else {
+      assertFalseM(1,"Expected more conflicts.");
+    }
+    // End Optionals //
+  } else {
+    char buf[400];
+    sprintf(buf,"Parsing 'test2.control' failed and should not do it. When parsing '%s' on field '%s'.\n",err.str_err,err.field);
+    assertFalseM(1,buf);
   }
 }

@@ -1,0 +1,19 @@
+Package: python-tk
+Priority: optional
+Section: python
+Installed-Size: 136
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Architecture: amd64
+Source: python-stdlib-extensions
+Version: 2.6.5-0
+Replaces: python2.3-tk, python2.4-tk
+Provides: python2.6-tk
+Depends: python (<< 2.7.0), python (>= 2.6.0), tk8.5 (>= 8.5.0)
+Suggests: tix, python-tk-dbg
+Conflicts: python2.3-tk, python2.4-tk
+Size: 28866
+Description: Tkinter - Writing Tk applications with Python
+ A module for writing portable GUI applications with Python using Tk.
+ Also known as Tkinter.
+Original-Maintainer: Matthias Klose <doko@debian.org>
+Python-Version: 2.6

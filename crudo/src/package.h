@@ -17,6 +17,7 @@ struct Package{
   char* description;
   char* web;
   unsigned long int version;
+  unsigned long int size;
   //char* command;
   char* section;
   struct Relation* depends;

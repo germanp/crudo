@@ -17,28 +17,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Invalid characters for package names and section
+const char* INV_PACKAGE_CHARS=" \n\t()[],:;<>";
 
 /** 
  * Parses a debian style control file
  * 
- * @param file Path to the file
+ * @param fp An already open file stream.
  * 
  * @param err An integer pointer to store the error status.
  *
- * @return Filled: Returns an allocated Package structure.
+ * @return Returns an allocated Package structure.
  *
- * TODO: - Add more descriptive error info.
  **/
 
-Package* parse(const char* file, crudo_err* err){
-  FILE *fp = fopen(file, "r");
+Package* parse(FILE* fp, crudo_err* err){
   char* buffer = strip_spaces(fp);
-  const char* work = buffer; // Work buffer
+  const char* work = buffer; // A copy of buffer (for working on it).
   const char* last_work=buffer;
   regex_t filter;
   regmatch_t match_a[3];
-  int field_len, val_len=0; // Stores the length of parsed strings
-  char field[200]; char val[1000]; // Stores the strings parsed
+  int field_len, val_len=0; // Will store the length of parsed strings
+  char field[200]; char val[1000]; // Will store the parsed strings
   int val_base;
   const char* regex="^[[:space:]]?([[:alnum:]-]+):[[:space:]]*(.*)$";
   
@@ -115,10 +115,9 @@ int newline_offset(char* buffer){
 
 int fill_package(Package* p, char* field, char* val, crudo_err* err){
   val=strstrip (val);
-  int val_len=strlen(val);
   int bad_char=0;
   if (!strcasecmp(field,"Package")) {
-    if ( (bad_char=strcspn(val," \n\t()[].,:;<>")) == val_len ){
+    if ( (bad_char=strcspn(val,INV_PACKAGE_CHARS)) == strlen(val) ){
       p->name=strdup(val);
     } else {
       if ( err ){
@@ -131,7 +130,7 @@ int fill_package(Package* p, char* field, char* val, crudo_err* err){
   } else if (!strcasecmp(val,"Homepage")){
     p->web=strdup(val);
   } else if (!strcasecmp(field,"Section")) {
-    if ( (bad_char=strcspn(val," \n\t()[].,:<>")) == val_len ){
+    if ( (bad_char=strcspn(val,INV_PACKAGE_CHARS)) == strlen(val) ){
       p->section=strdup(val);
     } else {
       if ( err ) {
@@ -139,6 +138,8 @@ int fill_package(Package* p, char* field, char* val, crudo_err* err){
 	goto on_error;
       }
     }
+  } else if (!strcasecmp(field,"Homepage")) {
+    p->web=strdup(val);    
   } else if (!strcasecmp(field,"Version")) {
     p->version=parse_version(val,err);
     if ( !p->version ) {
@@ -147,9 +148,9 @@ int fill_package(Package* p, char* field, char* val, crudo_err* err){
     }
   } else if (!strcasecmp(field,"Depends")) {
     return parse_relation(&p->depends,val,err);
-  }else if (!strcasecmp(field,"Conflicts")) {
+  } else if (!strcasecmp(field,"Conflicts")) {
     return parse_relation(&p->conflicts,val,err);
-  }else if (!strcasecmp(field,"Suggests")) {
+  } else if (!strcasecmp(field,"Suggests")) {
     return parse_relation(&p->optionals,val,err);
   }/*else if (!strcasecmp(field,"Recommends")) { */
   /*   p->optionals=parse_relation(val); */
@@ -312,16 +313,16 @@ long unsigned int parse_version(const char* ver, crudo_err* err){
  * @param first_rel A pointer where will be the Relation struct (R/W)
  * @param txt_rel String with the corresponding control format.
  * @param err Error struct to be filled in case of error. (Sets
- * crudo->str_err and crudo->code on error)
+ *            crudo->str_err and crudo->code on error)
  * 
- * @return 
+ * @return Returns 1 on success and 0 if fail.
  */
  
 int parse_relation(Relation** first_rel,const char* txt_rel, crudo_err* err){
   regex_t filter;
   regmatch_t match_a[4]={0,0,0,0};
   const char* regex=
-    "^[[:space:]]*([-_+[:alnum:]]+)[[:space:]]*[(][[:space:]]*([><=]{1,2})[[:space:]]*([0-9.:-]+)[)][[:space:]]*$";
+    "^[[:space:]]*([-_+.[:alnum:]]+)[[:space:]]*[(][[:space:]]*([><=]{1,2})[[:space:]]*([0-9.:-]+)[)][[:space:]]*$";
   if( regcomp(&filter,regex,REG_EXTENDED|REG_NEWLINE) != 0 ){
     if ( err )
       err->code=CRUDO_OUTMEM;
@@ -362,13 +363,27 @@ int parse_relation(Relation** first_rel,const char* txt_rel, crudo_err* err){
 	goto cleanup;
       }
     } else{
-      free_relations(first_rel);
-      if ( err ) { 
-	err->code=CRUDO_PARSE_ERROR;
-	err->str_err=strdup(splitted);
+      char* aux=strstrip(splitted);
+      if ( strcspn(aux,INV_PACKAGE_CHARS) == strlen(aux) ){
+	if ( *first_rel == NULL ){
+	  rel=init_relation();
+	  *first_rel=rel;
+	} else {
+	  rel->next=init_relation();
+	  rel=rel->next;
+	}
+	rel->name=strdup(aux);
+	rel->comparator[0]=0;
+	rel->version=0;
+      } else {
+	free_relations(first_rel);
+	if ( err ) { 
+	  err->code=CRUDO_PARSE_ERROR;
+	  err->str_err=strdup(splitted);
+	}
+	ret_val=0;
+	goto cleanup;
       }
-      ret_val=0;
-      goto cleanup;
     }
     splitted=strtok(NULL,",");
   }

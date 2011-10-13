@@ -10,7 +10,7 @@ int newline_offset(char*);
 
 int fill_package(Package* p, char* field, char* val, crudo_err* err);
 
-Package* parse(const char*, crudo_err*);
+Package* parse(FILE* fp, crudo_err* err);
 
 char* strip_spaces(FILE* file);
 

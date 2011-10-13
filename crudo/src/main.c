@@ -44,8 +44,9 @@ int main(int argc, char** argv){
     case 'a':
       ;  // <-- GCC problem???
       crudo_err err;
-      Package* p=parse(optarg,&err);
-      /* paq=IniciarPaquete(); */
+      FILE *fp = fopen(optarg, "r");
+      Package* p=parse(fp,&err);
+
       /* if ( procesarlog(optarg,&paq) == 0 ){ */
       /* 	if ( sqlite3_open(txt_base,&base) == SQLITE_OK ){ */
       /* 	  AgregarPaquete(&paq); */
