@@ -1,15 +1,12 @@
-/* #include "logparser.h" */
 #include "package.h"
 #include "parser.h"
-/* #include "base.h" */
-/* #include <sqlite3.h> */
 #include "config.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <string.h>
-
+#include <error.h>
 
 void imprime_uso(){
   printf("Uso: %s opciones [argumentos...]\n",PACKAGE_NAME);
@@ -23,11 +20,8 @@ void imprime_uso(){
 //sqlite3* base;
 
 int main(int argc, char** argv){
-  //static Paquete paq;
   int opcion;
   struct stat buf;
-  //  const char* txt_base="/var/lib/crudo/base.cdb"; // Path por defecto a la base de datos
-  //const char* txt_base="crudo.cdb";
   const struct option opc_largas[] = {
     { "help",no_argument,NULL,'h' },
     { "agregar",required_argument,NULL,'a' },
@@ -98,21 +92,24 @@ int main(int argc, char** argv){
       /* } */
     case 'i':
       ;
-      char
-      if ( argv[optind] != NULL ){
-      	txt_base=argv[optind];
+      char* database_file;
+      if ( argv[optind] )
+      	database_file=argv[optind];
+      else
+	database_file=DEFAULT_DATABASE_FILE;
+      struct stat buf;
+      int ret_val=stat(database_file, &buf);
+      if ( ret_val == ENOENT ) {
+	if ( init_database(database_file) ) {
+	  printf("Successfully initialized the database.\n");
+	  return 0;
+	} else {
+	  perror("Failed to create the database.\n");
+	}
+      } else if ( ! ret_val ) {
+	error(1,0,"'%s' already exists, remove it if you are sure.",database_file);
       }
-      /* if ( stat(txt_base,&buf) == -1 ){ */
-      /* 	if ( CrearBase(txt_base) == 0 ) */
-      /* 	  return 0; */
-      /* 	else */
-      /* 	  fprintf(stderr,"Error: No se pudo crear '%s'.\n",txt_base); */
-      /* 	return 1; */
-      /* } */
-      /* else{ */
-      /* 	fprintf(stderr,"Error: '%s' ya existe.\n",txt_base); */
-      /* 	return 1; */
-      /* } */
+      return 1;
       break;
     case '?':
       fprintf(stderr,"  Escriba '%s --help' para obtener ayuda.\n",PACKAGE);
