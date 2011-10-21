@@ -96,10 +96,12 @@ int main(int argc, char** argv){
       /* 	fprintf(stderr,"Error: No se pudo abrir la base de datos.\n"); */
       /* 	return -1; */
       /* } */
-    case 'c':
-      /* if ( argv[optind] != NULL ){ */
-      /* 	txt_base=argv[optind]; */
-      /* } */
+    case 'i':
+      ;
+      char
+      if ( argv[optind] != NULL ){
+      	txt_base=argv[optind];
+      }
       /* if ( stat(txt_base,&buf) == -1 ){ */
       /* 	if ( CrearBase(txt_base) == 0 ) */
       /* 	  return 0; */
