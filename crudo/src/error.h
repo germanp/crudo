@@ -14,6 +14,9 @@ struct crudo_err {
 };
  
 typedef struct crudo_err crudo_err; 
+
 char* string_error(const int );
+void put_errorf(const char* format, ...);
+void put_error(const char* string);
 
 #endif /* _ERROR_H_ */

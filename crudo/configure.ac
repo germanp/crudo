@@ -1,4 +1,4 @@
-AC_INIT([crudo], [0.1], [german@linuxcrudo.com.ar])
+AC_INIT([crudo], [0.1], [<german@linuxcrudo.com.ar>])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_CC
