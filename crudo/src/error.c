@@ -25,8 +25,8 @@
 
 void put_errorf(const char* format, ...){
      va_list args;
-     extern char *program_invocation_short_name;
-     fprintf( stderr, "%s: ", program_invocation_short_name);
+     extern char *program_invocation_name;
+     fprintf( stderr, "%s: ", program_invocation_name);
      va_start( args, format );
      vfprintf( stderr, format, args );
      va_end( args );
@@ -35,6 +35,23 @@ void put_errorf(const char* format, ...){
 
 void put_error(const char* string){
      va_list args;
-     extern char *program_invocation_short_name;
-     fprintf( stderr, "%s: %s\n", program_invocation_short_name,string);
+     extern char *program_invocation_name;
+     fprintf( stderr, "%s: %s\n", program_invocation_name,string);
+}
+
+
+void put_message(const char* string){
+     va_list args;
+     extern char *program_invocation_name;
+     printf( "%s: %s\n", program_invocation_name,string);
+}
+
+void put_messagef(const char* format, ...){
+     va_list args;
+     extern char *program_invocation_name;
+     printf( "%s: ", program_invocation_name);
+     va_start( args, format );
+     vprintf( format, args );
+     va_end( args );
+     puts( "\n" );
 }
