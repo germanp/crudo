@@ -125,10 +125,14 @@ int fill_package(Package* p, char* field, char* val, crudo_err* err){
 	goto on_error;
       }
     }
-  } else if (!strcasecmp(val,"Description")){
+  } else if (!strcasecmp(field,"Description")){
     p->description=strdup(val);
-  } else if (!strcasecmp(val,"Homepage")){
+  } else if (!strcasecmp(field,"Homepage")){
     p->web=strdup(val);
+  } else if (!strcasecmp(field,"Maintainer")){
+    p->maintainer=strdup(val);
+  } else if (!strcasecmp(field,"Installed-Size")) {
+    p->size=strtol(val,NULL,10);
   } else if (!strcasecmp(field,"Section")) {
     if ( (bad_char=strcspn(val,INV_PACKAGE_CHARS)) == strlen(val) ){
       p->section=strdup(val);
@@ -138,6 +142,8 @@ int fill_package(Package* p, char* field, char* val, crudo_err* err){
 	goto on_error;
       }
     }
+  } else if (!strcasecmp(field,"Checksum")) {
+    p->checksum=strdup(val);    
   } else if (!strcasecmp(field,"Homepage")) {
     p->web=strdup(val);    
   } else if (!strcasecmp(field,"Version")) {

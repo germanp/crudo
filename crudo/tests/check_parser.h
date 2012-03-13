@@ -9,7 +9,7 @@ TEST(check_parse_control_2);
 
 
 // Collect tests into test suite
-TEST_SUITE(suite) {
+TEST_SUITE(parser) {
   TEST_ADD(check_strip_spaces),
   TEST_ADD(check_parse_version),
   TEST_ADD(check_parse_relation),

@@ -13,6 +13,8 @@ Replaces: mdetect (<< 0.5.2.2), xserver-xorg (<< 6.8.2-35)
 Provides: xserver-xorg-input-7
 Depends: libc6 (>= 2.7.0) , xserver-xorg-core (>= 2:1.6.99)
 Size:   	 30918
+Checksum: a3663a5181215703c0d47d7534c720c5
+Command: 
 Description: X.Org X server -- VMMouse input driver to use with VMWare
  This package provides the driver for the X11 vmmouse input device.
  .

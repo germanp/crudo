@@ -15,11 +15,13 @@ typedef struct Relation Relation;
 struct Package{
   char* name;
   char* description;
-  char* web;
-  unsigned long int version;
-  unsigned long int size;
-  char* command;
   char* section;
+  unsigned long int size;
+  char* web;
+  char* maintainer;
+  unsigned long int version;
+  char* checksum;
+  char* command;
   struct Relation* depends;
   struct Relation* conflicts;
   struct Relation* optionals;

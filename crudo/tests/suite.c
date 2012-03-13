@@ -1,10 +1,12 @@
 #include "check_parser.h"
+#include "check_database.h"
 
 // This struct contains all test suites
 TEST_SUITES {
-  TEST_SUITE_ADD(suite), // add T1 test suite
+    TEST_SUITE_ADD(parser),
+    TEST_SUITE_ADD(database),
     TEST_SUITES_CLOSURE
-    };
+};
 
 int main(int argc, char *argv[])
 {

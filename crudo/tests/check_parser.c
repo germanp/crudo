@@ -46,7 +46,12 @@ TEST(check_parse_control_1) {
   if ( p ) {
     assertFalse( strcmp(p->name,"xserver-xorg-input-vmmouse") );
     assertFalse( strcmp(p->section,"x11") );
-    assertEquals( p->version, 12060502 );
+    assertEquals( p->size, 176 );
+    assertFalse( p->web );
+    assertFalse( strcmp(p->maintainer,"Ubuntu X-SWAT <ubuntu-x@lists.ubuntu.com>") );
+    assertTrue( p->version == 12060502 );
+    assertFalse( strcmp(p->checksum, "a3663a5181215703c0d47d7534c720c5") );
+    assertFalse( p->command );
     // Depends //
     if ( p->depends ) {
       assertFalse( strcmp(p->depends->name,"libc6") );

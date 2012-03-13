@@ -1,49 +1,32 @@
-#define SQL_SCHEMA_DEF "CREATE TABLE Package(\
--- Attributes --\
-id integer PRIMARY KEY,\
-name text UNIQUE,\
-description text,\
-section text,\
-size integer,\
-version integer,\
-web text,\
-maintainer text,\
-checksum text);\
+#define SQL_SCHEMA_DEF "CREATE TABLE Package(\n\
+-- Attributes --\n\
+id integer PRIMARY KEY,\n\
+name text UNIQUE NOT NULL,\n\
+description TEXT,\n\
+section TEXT,\n\
+size INTEGER,\n\
+version INTEGER,\n\
+web TEXT,\n\
+mantainer TEXT,\n\
+checksum TEXT);\n\
 \
-CREATE TABLE File(\
--- Attributes --\
-packageName text REFERENCES Package (name),\
-filePath text,\
-checksum text);\
-\
-CREATE INDEX FilePackageNameIndex ON File(packageName);\
-\
-CREATE TABLE Depend(\
--- Attributes --\
-packageParent text,\
-comparator text,\
-version integer,\
-packageRelated text);\
-\
-CREATE INDEX DependPackageParentIndex ON Depend(packageParent);\
-CREATE INDEX DependIndex ON Depend(packageParent);\
-\
-CREATE TABLE Optional(\
--- Attributes --\
-packageParent text,\
-comparator text,\
-version integer,\
-packageRelated text);\
-\
-CREATE INDEX OptionalPackageParentIndex ON Optional(packageParent);\
-CREATE INDEX DependIndex ON Optional(packageParent);\
-\
-CREATE TABLE Conflict(\
--- Attributes --\
-packageParent text,\
-comparator text,\
-version integer,\
-packageRelated text);\
-\
-CREATE INDEX ConflictPackageParentIndex ON Conflict(packageParent);\
-CREATE INDEX ConflictIndex ON Conflict(packageParent);"
+CREATE TABLE File(\n\
+-- Attributes --\n\
+packageName TEXT REFERENCES Package (name),\n\
+filePath TEXT,\n\
+checksum TEXT);\n\
+\n\
+CREATE INDEX FilePackageNameIndex ON File(packageName);\n\
+\n\
+CREATE TABLE Relation(\n\
+-- Attributes --\n\
+parentPackage TEXT NOT NULL,\n\
+type TEXT NOT NULL CHECK(type IN('d','o','c')),\n\
+comparator TEXT,\n\
+version INTEGER,\n\
+relatedPackage TEXT);\n\
+\n\
+CREATE UNIQUE INDEX UniqueRelation ON Relation(parentPackage,relatedPackage);\n\
+CREATE INDEX RelationPackageParentIndex ON Relation(parentPackage);\n\
+CREATE INDEX RelationIndex ON Relation(parentPackage);\n\
+\n"
