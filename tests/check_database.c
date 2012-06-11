@@ -1,6 +1,8 @@
 #include "database.h"
 #include "cu/cu.h"
 #include <unistd.h>
+#include <stdio.h>
+#include <assert.h>
 
 const char* DB_FILE="test.cdb";
 
@@ -17,12 +19,12 @@ Package p={
 
 TEST(check_init_database){
   unlink(DB_FILE); // Delete the file if exists
-  assertFalseM(init_database(DB_FILE),"Database initialization failed.");
+  assertEquals(init_database(DB_FILE),SQLITE_OK);
 }
 
 TEST(check_add_package){
   if ( open_database(DB_FILE) ){
-    assertTrueM(add_package(&p)==SQLITE_OK,"Failed adding a package.");
+    assert(add_package(&p)==SQLITE_OK);
     assertFalseM(add_package(&p)==SQLITE_OK,"Duplicated package should fail.");
   } else {
     assertTrueM(0,"Could not open the database.");
@@ -37,9 +39,10 @@ TEST(check_add_relations){
     .version = 2210100,
     .next = 0
   };
+  Relation *r=&r1;
   if ( open_database(DB_FILE) ){
-    assertEqualsM(add_relations(p.name,'d',&r1),SQLITE_DONE,"Failed adding a relation.");
-    assertNotEqualsM(add_relations(p.name,'d',&r1),SQLITE_DONE,"Adding the same relation must be fail.");
+    assertEqualsM(add_relations(p.name,'d',&r),SQLITE_DONE,"Failed adding a relation.");
+    assertNotEqualsM(add_relations(p.name,'d',&r),SQLITE_DONE,"Adding the same relation must be fail.");
   } else {
     assertTrueM(0,"Could not open the database.");
   }

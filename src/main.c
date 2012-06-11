@@ -1,6 +1,8 @@
 #include "package.h"
 #include "parser.h"
 #include "config.h"
+#include "database.h"
+#include "sqlite3.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,19 +12,18 @@
 #include <getopt.h>
 #include <unistd.h>
 
-extern char *program_invocation_name;
+extern char *program_invocation_short_name;
 
 void show_usage(){
-  printf("Usage: %s --add [controlfile]\n",program_invocation_name);
-  printf("  or:  crudo --delete package\n"
-	 "  or:  crudo --show [search_pattern]\n"
-	 "  or:  crudo --init [database_file]\n"
-	 );
+  printf("Usage: %s --add [controlfile]\n",program_invocation_short_name);
+  printf("   or: %s --delete package_name\n",program_invocation_short_name);
+  printf("   or: %s --show [search_pattern]\n",program_invocation_short_name);
+  printf("   or: %s --init [database_file]\n",program_invocation_short_name);
 }
 
 void show_help(){
   show_usage();
-  printf("%s -- %s\n\n",program_invocation_name,PACKAGE_BRIEF);
+  printf("%s -- %s\n\n",program_invocation_short_name,PACKAGE_BRIEF);
 
   printf("  -a, --add[=file]           Adds package from a control file or stdin\n"
 	 "                             (default).\n"
@@ -54,18 +55,24 @@ int main(int argc, char** argv){
     switch( option ){
     case 'a':
       ;  // <-- GCC problem???
-      /* FILE *fp = fopen(optarg, "r"); */
-      /* if ( fp ) { */
-      /* 	crudo_err err; */
-      /* 	Package* p=parse(fp,&err); */
-      /* 	if ( p ) { */
+      FILE *fp = fopen(optarg, "r");
+      if ( ! fp ) {
+      	libc_errorf("Can't open '%s'",optarg);
+	return errno;
+      }
+      Package* p=parse(fp);
+      if ( p ) {
+	if ( open_database(DEFAULT_DATABASE_FILE) == SQLITE_OK ) {
 	  
-      /* 	} else { */
-	  
-      /* 	} */
-      /* } else */
-      /* 	perror("Failed to open the file."); */
-      return 0;
+	} else {
+	  error_messagef("Openning '%s': %s\n",
+			 DEFAULT_DATABASE_FILE,sqlite3_errmsg(get_database())
+			 );
+	}
+	close_database();
+      } else {
+	return 1;
+      }
     case 'd':
       break;
     case 's':
@@ -80,17 +87,17 @@ int main(int argc, char** argv){
       int ret_val=stat(database_file, &buf);
       if ( errno == ENOENT ) {
       	if ( init_database(database_file) ) {
-      	  put_message("Successfully initialized the database.");
+	  success_message("Successfully initialized the database.");
       	  return 0;
       	} else {
-      	  put_error("Failed to create the database.");
+      	  error_message("Failed to create the database.");
 	  return 1;
       	}
       } else if ( ! ret_val ) {
-      	put_errorf("'%s' already exists, remove it if you are sure.",database_file);
+      	error_messagef("'%s' already exists, remove it if you are sure",database_file);
 	return 1;
       } else {
-	put_errorf("Couldn't open file '%s': %s",database_file,strerror(errno));
+	libc_errorf("Couldn't open file '%s'",database_file);
       }
       return 0;
     case 'h':
@@ -103,11 +110,11 @@ int main(int argc, char** argv){
       puts(PACKAGE_STRING);
       return 0;
     case '?':
-      fprintf(stderr,"Try `%s --help' for more information.\n",program_invocation_name);
+      error_messagef("Try `%s --help' for more information.\n",program_invocation_short_name);
       return -1;
     case -1:
-      put_errorf("What do you want do?\n"
-		 "Try `%s --help' for more information.",program_invocation_name);
+      success_messagef("What do you want do?\n"
+	      "Try `%s --help' for more information.",program_invocation_short_name);
       return -1;
     /* default: */
     /*   show_usage(); */

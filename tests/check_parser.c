@@ -6,10 +6,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-TEST(check_parse_relation){
-  crudo_err err;
+TEST(check_parse_relations){
   Relation* r;
-  parse_relation(&r," gcc++ (>= 3.2.1), \n libncurses (>=2.9.5)",&err);
+  parse_relations(&r," gcc++ (>= 3.2.1), \n libncurses (>=2.9.5)");
   assertTrue(r);
   if ( r ) {
     assertFalse( strcmp(r->name,"gcc++") );
@@ -23,17 +22,15 @@ TEST(check_parse_relation){
 }
 
 TEST(check_parse_version){
-  assertEquals(parse_version("1:2.34.1-7",0),2340107);
-  assertEquals(parse_version("3.2.11",0),3021100);
-  crudo_err err;
-  parse_version("1:333.4.3-b",&err);
-  assertEquals(err.code,CRUDO_PARSE_ERROR);
+  assertEquals(parse_version("1:2.34.1-7"),2340107);
+  assertEquals(parse_version("3.2.11"),3021100);  
+  assertEquals(parse_version("1:333.4.3-b"),0);
 }
 
 TEST(check_strip_spaces) {
   FILE* fp = fopen("test1.control", "r");
   char* buffer = strip_spaces(fp);
-  assertEquals(strlen(buffer), 1228);
+  assertEquals(strlen(buffer), 1281);
   //                             ^
   //                             |
   //         `cat test.control | tr -s "\t\n " | wc -c`
@@ -42,7 +39,7 @@ TEST(check_strip_spaces) {
 
 TEST(check_parse_control_1) {
   FILE *fp=fopen("test1.control","r");
-  Package* p=parse(fp,0);
+  Package* p=parse(fp);
   if ( p ) {
     assertFalse( strcmp(p->name,"xserver-xorg-input-vmmouse") );
     assertFalse( strcmp(p->section,"x11") );
@@ -75,10 +72,9 @@ TEST(check_parse_control_1) {
 }
 
 TEST(check_parse_control_2) {
-  crudo_err err;
   Relation* r;
   FILE *fp=fopen("test2.control","r");
-  Package* p=parse(fp,&err);
+  Package* p=parse(fp);
   if ( p ) {
     assertFalse( strcmp(p->name,"python-tk") );
     assertFalse( strcmp(p->section,"python") );
@@ -145,9 +141,5 @@ TEST(check_parse_control_2) {
       assertFalseM(1,"Expected more conflicts.");
     }
     // End Optionals //
-  } else {
-    char buf[400];
-    sprintf(buf,"Parsing 'test2.control' failed and should not do it. When parsing '%s' on field '%s'.\n",err.str_err,err.field);
-    assertFalseM(1,buf);
   }
 }

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+static sqlite3* db;
+
 /** 
  * Singletton like function. It will return a sqlite3 connection
  * pointer that first must be open and finally closed.
@@ -11,27 +13,21 @@
  * @return 
  */
 
-sqlite3** get_database(){
-  static sqlite3* db;
-  return &db;
+sqlite3* get_database(){
+  return db;
 }
 
 /** 
  * Open an indicated database file. It uses a internal static variable
  * that must be closed with close_database()
  * 
- * @param file_path String indicating the file pat
+ * @param file_path String indicating the file path
  * 
  * @return Returns a pointer to sqlite3 object. NULL if fails
  */
 
-sqlite3* open_database(const char* file_path){
-  sqlite3** db=get_database();
-  if ( sqlite3_open_v2(file_path,db,SQLITE_OPEN_READWRITE,NULL) == SQLITE_OK ){
-    return *db;
-  } else {
-    return NULL;
-  }
+int open_database(const char* file_path){
+  return sqlite3_open_v2(file_path,&db,SQLITE_OPEN_CREATE,NULL);
 }
 
 /** 
@@ -40,7 +36,7 @@ sqlite3* open_database(const char* file_path){
  */
 
 void close_database(){
-  sqlite3_close(*get_database());
+  sqlite3_close(db);
 }
 
 /** 
@@ -55,22 +51,19 @@ void close_database(){
  */
 
 int init_database(const char* file_path){
-  sqlite3* db;
-  if ( sqlite3_open(file_path,&db) == SQLITE_OK ) {
-    int ret_val=sqlite3_exec(db,SQL_SCHEMA_DEF,0,0,0);
+  int ret_val=sqlite3_open_v2(file_path,&db,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,NULL);
+  
+  if ( ret_val  == SQLITE_OK ) {
+    ret_val=sqlite3_exec(db,SQL_SCHEMA_DEF,0,0,0);
     /* // Debugging version of the last command */
     /* // -- */
     /* char* error; */
-    /* int ret_val=sqlite3_exec(db,SQL_SCHEMA_DEF,0,0,&error); */
-    /* if ( error ) */
-    /*   puts(error); */
-    // --
-    sqlite3_close(db);
-    return ret_val;
-  } else{
-    sqlite3_close(db);
-    return 0;
+    /* ret_val=sqlite3_exec(db,SQL_SCHEMA_DEF,0,0,&error); */
+    /* fprintf(stderr,"%s\n",error); */
+    /* // -- */
   }
+  sqlite3_close(db);
+  return ret_val;
 }
 
 /** 
@@ -93,9 +86,10 @@ int add_package(Package* p){
 		    p->maintainer,
 		    p->checksum
 		    );
-  sqlite3* db=*get_database();
+  //sqlite3* db=get_database();
   int ret_val=sqlite3_exec(db,sql_buf,0,0,0);
   sqlite3_free(sql_buf);
+  
   return ret_val;
 }
 
@@ -111,10 +105,10 @@ int add_package(Package* p){
  */
 
 int add_relations(const char* parent_package, char type, Relation** relation){
+  Relation* r=*relation;
   if ( !r ) 
     return SQLITE_OK;
-  Relation* r=*relation;
-  sqlite3* db=*get_database();
+  //sqlite3* db=get_database();
   sqlite3_stmt* pstmt;
   const char* sql="INSERT INTO Relation VALUES(?,?,?,?,?);";
   int ret_val;
@@ -136,5 +130,5 @@ int add_relations(const char* parent_package, char type, Relation** relation){
 }
 
 Package* get_package(const char* name){
-  sqlite3* db=*get_database();
+  //sqlite3* db=get_database();
 }

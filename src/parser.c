@@ -12,6 +12,7 @@
 #include "parser.h"
 #include "package.h"
 #include "config.h"
+#include "error.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -25,13 +26,11 @@ const char* INV_PACKAGE_CHARS=" \n\t()[],:;<>";
  * 
  * @param fp An already open file stream.
  * 
- * @param err An integer pointer to store the error status.
- *
  * @return Returns an allocated Package structure.
  *
  **/
 
-Package* parse(FILE* fp, crudo_err* err){
+Package* parse(FILE* fp){
   char* buffer = strip_spaces(fp);
   const char* work = buffer; // A copy of buffer (for working on it).
   const char* last_work=buffer;
@@ -44,7 +43,7 @@ Package* parse(FILE* fp, crudo_err* err){
   
   Package* p=init_package();
   if(regcomp(&filter, regex , REG_EXTENDED|REG_NEWLINE) != 0){
-    err->code=CRUDO_OUTMEM;
+    libc_errorf("Parsing error");
     free_package(&p);
     goto cleanup;
   } else {
@@ -57,10 +56,7 @@ Package* parse(FILE* fp, crudo_err* err){
 	val_len+=match_a[0].rm_so;
 	if ( val_len > 1000 ) val_len=1000;
 	extract_string(val,last_work,val_base,val_len);
-
-	if ( ! fill_package(p,field,val,err) ){
-	  if ( err )
-	    err->field=strdup(field);
+	if ( ! fill_package(p,field,val) ){
 	  free_package(&p);
 	  goto cleanup;
 	}
@@ -73,9 +69,7 @@ Package* parse(FILE* fp, crudo_err* err){
       val_len+=strlen(work);
       if ( val_len > 1000 ) val_len=1000;
       extract_string(val,last_work,val_base,val_len);
-      if ( ! fill_package(p,field,val,err)  ) {
-	if ( err )
-	  err->field=strdup(field);
+      if ( ! fill_package(p,field,val)  ) {
 	free_package(&p);
       }
     }
@@ -107,23 +101,19 @@ int newline_offset(char* buffer){
  * @param field The field nae that correspond to the data to be populated
  * @param val Raw data to be added to the package struct.
  * 
- * @param err crudo_err that will hold the error data if exist.
- *
- * @return Returns 1 on sucess or 0 on error. Also sets the err variable
+ * @return Returns 1 on sucess or 0 on error.
  * 
  */
 
-int fill_package(Package* p, char* field, char* val, crudo_err* err){
+int fill_package(Package* p, char* field, char* val){
   val=strstrip (val);
   int bad_char=0;
   if (!strcasecmp(field,"Package")) {
     if ( (bad_char=strcspn(val,INV_PACKAGE_CHARS)) == strlen(val) ){
       p->name=strdup(val);
     } else {
-      if ( err ){
-	err->code=CRUDO_PARSE_ERROR;
-	goto on_error;
-      }
+      fprintf(stderr,"Parsing error: '%s' is not a valid package name.",val);
+      return 0;
     }
   } else if (!strcasecmp(field,"Description")){
     p->description=strdup(val);
@@ -137,34 +127,29 @@ int fill_package(Package* p, char* field, char* val, crudo_err* err){
     if ( (bad_char=strcspn(val,INV_PACKAGE_CHARS)) == strlen(val) ){
       p->section=strdup(val);
     } else {
-      if ( err ) {
-	err->code=CRUDO_PARSE_ERROR;
-	goto on_error;
-      }
+      fprintf(stderr,"Parsing error: '%s' is not a valid section name.\n",val);
+      return 0;
     }
   } else if (!strcasecmp(field,"Checksum")) {
     p->checksum=strdup(val);    
   } else if (!strcasecmp(field,"Homepage")) {
     p->web=strdup(val);    
   } else if (!strcasecmp(field,"Version")) {
-    p->version=parse_version(val,err);
+    p->version=parse_version(val);
     if ( !p->version ) {
-      err->str_err=strdup(val);
-      goto on_error;
+      error_messagef("While parsing '%s'\n",field);
+      return 0;
     }
   } else if (!strcasecmp(field,"Depends")) {
-    return parse_relation(&p->depends,val,err);
+    return parse_relations(&p->depends,val);
   } else if (!strcasecmp(field,"Conflicts")) {
-    return parse_relation(&p->conflicts,val,err);
+    return parse_relations(&p->conflicts,val);
   } else if (!strcasecmp(field,"Suggests")) {
-    return parse_relation(&p->optionals,val,err);
+    return parse_relations(&p->optionals,val);
   }/*else if (!strcasecmp(field,"Recommends")) { */
   /*   p->optionals=parse_relation(val); */
   //}
   return 1;
- on_error:
-  err->str_err=strdup(val);
-  return 0;
 }
 /** 
  * Strip all the repeated spaces (tabs, returns, etc)
@@ -272,13 +257,10 @@ void extract_regmatch(char matched[], const char* str, regmatch_t m, unsigned in
  * @param ver An String containing the version info.  For example:
  * 2.10.1-8, but also accepts debian style but without characters.
  *
- * @param err An input variable to set an error code. (only  sets err->code
- * on error)
- *
  * @return Returns a long integer where each digit shows the version
  *         that corresponds to the groups separated by . and -
  */
-long unsigned int parse_version(const char* ver, crudo_err* err){
+long unsigned int parse_version(const char* ver){
   regex_t filter;
   regmatch_t match_a[5]={0,0,0,0,0}; // array with parenthesis matches
   const char* regex=
@@ -287,8 +269,7 @@ long unsigned int parse_version(const char* ver, crudo_err* err){
   int ret_val=0;
 
   if ( regcomp(&filter,regex, REG_EXTENDED|REG_NEWLINE) != 0 ) {
-    if ( err )
-      err->code=CRUDO_OUTMEM;
+    libc_error("Parsing error");
   } else {
     if ( !regexec(&filter,ver,5,match_a,0) ) {
       extract_string(majver,ver,match_a[1].rm_so,
@@ -305,8 +286,7 @@ long unsigned int parse_version(const char* ver, crudo_err* err){
 	strtol(minver,0,10)*100 + 
 	strtol(rev,0,10);
     } else {
-      if ( err )
-	err->code=CRUDO_PARSE_ERROR; 
+      error_messagef("Parsing error: '%s' is not a valid version.\n",ver);
     }
   }
   return ret_val;
@@ -318,20 +298,17 @@ long unsigned int parse_version(const char* ver, crudo_err* err){
  * 
  * @param first_rel A pointer where will be the Relation struct (R/W)
  * @param txt_rel String with the corresponding control format.
- * @param err Error struct to be filled in case of error. (Sets
- *            crudo->str_err and crudo->code on error)
  * 
  * @return Returns 1 on success and 0 if fail.
  */
  
-int parse_relation(Relation** first_rel,const char* txt_rel, crudo_err* err){
+int parse_relations(Relation** first_rel,const char* txt_rel){
   regex_t filter;
   regmatch_t match_a[4]={0,0,0,0};
   const char* regex=
     "^[[:space:]]*([-_+.[:alnum:]]+)[[:space:]]*[(][[:space:]]*([><=]{1,2})[[:space:]]*([0-9.:-]+)[)][[:space:]]*$";
   if( regcomp(&filter,regex,REG_EXTENDED|REG_NEWLINE) != 0 ){
-    if ( err )
-      err->code=CRUDO_OUTMEM;
+    libc_error("Parsing error");
     return 0;
   }
   char name[200], txt_ver[20];
@@ -358,13 +335,10 @@ int parse_relation(Relation** first_rel,const char* txt_rel, crudo_err* err){
 		     match_a[2].rm_eo - match_a[2].rm_so);
 
       extract_regmatch(txt_ver, splitted, match_a[3], 20);
-      rel->version=parse_version(txt_ver,err);
+      rel->version=parse_version(txt_ver);
       if ( rel->version == 0 ){
 	free_relations(first_rel);
-	if ( err ) {
-	  err->str_err=strdup(txt_ver);
-	  err->code=CRUDO_PARSE_ERROR;
-	}
+	error_messagef("While parsing '%s'\n",splitted);
 	ret_val=0;
 	goto cleanup;
       }
@@ -383,10 +357,7 @@ int parse_relation(Relation** first_rel,const char* txt_rel, crudo_err* err){
 	rel->version=0;
       } else {
 	free_relations(first_rel);
-	if ( err ) { 
-	  err->code=CRUDO_PARSE_ERROR;
-	  err->str_err=strdup(splitted);
-	}
+	error_messagef("Parsing error: '%s' is not a valid package name.",aux);
 	ret_val=0;
 	goto cleanup;
       }

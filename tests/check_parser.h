@@ -3,7 +3,7 @@
 // Declarations of tests
 TEST(check_strip_spaces);
 TEST(check_parse_version);
-TEST(check_parse_relation);
+TEST(check_parse_relations);
 TEST(check_parse_control_1);
 TEST(check_parse_control_2);
 
@@ -12,7 +12,7 @@ TEST(check_parse_control_2);
 TEST_SUITE(parser) {
   TEST_ADD(check_strip_spaces),
   TEST_ADD(check_parse_version),
-  TEST_ADD(check_parse_relation),
+  TEST_ADD(check_parse_relations),
   TEST_ADD(check_parse_control_1),
   TEST_ADD(check_parse_control_2),
   TEST_SUITE_CLOSURE

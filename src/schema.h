@@ -12,15 +12,13 @@ checksum TEXT);\n\
 \
 CREATE TABLE File(\n\
 -- Attributes --\n\
-packageName TEXT REFERENCES Package (name),\n\
+packageId INTEGER REFERENCES Package (id),\n\
 filePath TEXT,\n\
 checksum TEXT);\n\
 \n\
-CREATE INDEX FilePackageNameIndex ON File(packageName);\n\
-\n\
 CREATE TABLE Relation(\n\
 -- Attributes --\n\
-parentPackage TEXT NOT NULL,\n\
+parentPackage INTEGER NOT NULL,\n\
 type TEXT NOT NULL CHECK(type IN('d','o','c')),\n\
 comparator TEXT,\n\
 version INTEGER,\n\
