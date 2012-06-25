@@ -27,7 +27,7 @@ sqlite3* get_database(){
  */
 
 int open_database(const char* file_path){
-  return sqlite3_open_v2(file_path,&db,SQLITE_OPEN_CREATE,NULL);
+  return sqlite3_open_v2(file_path,&db,SQLITE_OPEN_READWRITE,NULL);
 }
 
 /** 

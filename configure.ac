@@ -8,5 +8,5 @@ AM_PROG_CC_C_O
 AC_CHECK_LIB([pthread], [pthread_mutex_trylock])
 AC_CHECK_LIB([dl], [dlopen])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES(Makefile src/Makefile tests/Makefile)
+AC_CONFIG_FILES(Makefile src/Makefile test/Makefile)
 AC_OUTPUT

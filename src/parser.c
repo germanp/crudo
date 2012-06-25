@@ -77,7 +77,6 @@ Package* parse(FILE* fp){
  cleanup:
   regfree(&filter);
   free(buffer);
-  fclose(fp);
   return p;
 }
 /** 
@@ -160,9 +159,13 @@ int fill_package(Package* p, char* field, char* val){
  */
 
 char* strip_spaces(FILE* f){
-  char* buffer=malloc(1024);
-  int letter, i=0, last_letter=0;
+  char* buffer=NULL;
+  int i=0;
+  char letter, last_letter=0;
   while( (letter=fgetc(f)) != EOF ) {
+    if ( ! (i%1000) ) {
+      buffer=realloc(buffer,(i+1000)*sizeof(char));
+    }
     if (isspace(letter)) {
       if ( letter == last_letter ){
 	last_letter=letter;
@@ -173,7 +176,6 @@ char* strip_spaces(FILE* f){
     buffer[i]=letter;
     i++;
     // Super dynamic allocation.
-    if (!(i%1024)) buffer=(char*)realloc(buffer,(i+1024)*sizeof(char));
   }
   buffer[i]='\0';
   return buffer;
