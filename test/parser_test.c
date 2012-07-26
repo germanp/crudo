@@ -27,7 +27,7 @@ TEST(parser, strip_spaces){
   //                 ^
   //                 |
   // `cat test.control | tr -s "\t\n " | wc -c`
-  //free(buffer);
+  free(buffer);
   fclose(fp);
 }
 

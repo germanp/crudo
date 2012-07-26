@@ -17,11 +17,11 @@ struct Package{
   char* description;
   char* section;
   unsigned long int size;
+  unsigned long int version;
   char* web;
   char* maintainer;
-  unsigned long int version;
   char* checksum;
-  char* command;
+  //  char* command;
   struct Relation* depends;
   struct Relation* conflicts;
   struct Relation* optionals;

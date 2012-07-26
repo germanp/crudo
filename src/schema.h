@@ -1,7 +1,7 @@
 #define SQL_SCHEMA_DEF "CREATE TABLE Package(\n\
 -- Attributes --\n\
 id integer PRIMARY KEY,\n\
-name text UNIQUE NOT NULL,\n\
+name text UNIQUE NOT NULL COLLATE NOCASE,\n\
 description TEXT,\n\
 section TEXT,\n\
 size INTEGER,\n\
