@@ -221,7 +221,7 @@ Package* find_package(const char* name){
 }
 
 /**
- * Elimina el paquete especificado.
+ * Deletes an specified package.
  *
  * @param name Exact name of the package.
  *
@@ -236,6 +236,21 @@ int delete_package(const char* name){
   sqlite3_free(sql_buf);
   return sqlite3_changes(db);
 }
+
+/**
+ * Given a pattern name of packages returns a little brief about the
+ * packages that matches it.  precond: database must be open.
+ *
+ * @param argz      Argz char style that will hold the packages info.
+ * @param argz_len  Length of argz list.
+ * @param name      String name of searched packages. It can be a glob
+ *                  unix style pattern.
+ *
+ * precond: database must be open.
+ * return  Returns SQLITE_DONE if no packages found, SQLITE_ROW if
+ *         packages was found. It is the same that returns sqlite3_step()
+ *
+ */
 
 int list_packages(char** argz, size_t* argz_len, const char* name){
   sqlite3_stmt* pstmt;
